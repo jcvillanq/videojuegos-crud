@@ -36,9 +36,9 @@
             <select name="genero" id="genero">
                 <option value="">Todos</option>
                 @foreach($generos as $genero)
-                    <option value="{{ $genero }}" {{ request('genero') == $genero ? 'selected' : '' }}>
-                        {{ $genero }}
-                    </option>
+                <option value="{{ $genero }}" {{ request('genero') == $genero ? 'selected' : '' }}>
+                    {{ $genero }}
+                </option>
                 @endforeach
             </select>
             <button type="submit" class="btn btn-edit">Filtrar</button>

@@ -19,7 +19,10 @@ class VideojuegoController extends Controller
         }
         
         $videojuegos = $query->get();
-        $generos = Videojuego::distinct('genero')->get();
+        
+        $generos = Videojuego::raw(function($collection) {
+            return $collection->distinct('genero');
+        });
         
         return view('videojuegos.index', compact('videojuegos', 'generos'));
     }
