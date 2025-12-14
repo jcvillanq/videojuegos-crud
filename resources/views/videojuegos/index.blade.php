@@ -3,87 +3,88 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Añadir Videojuego</title>
+    <title>Videojuegos CRUD</title>
     <style>
         body { font-family: Arial, sans-serif; margin: 20px; background-color: #f5f5f5; }
         h1 { color: #333; }
-        form { background-color: white; padding: 20px; border-radius: 5px; max-width: 500px; }
-        label { display: block; margin-top: 15px; font-weight: bold; }
-        input, select { width: 100%; padding: 10px; margin-top: 5px; border: 1px solid #ddd; border-radius: 3px; box-sizing: border-box; }
-        input[type="checkbox"] { width: auto; }
-        .btn { padding: 10px 20px; margin-top: 20px; border: none; cursor: pointer; }
-        .btn-save { background-color: #4CAF50; color: white; }
-        .btn-cancel { background-color: #666; color: white; text-decoration: none; display: inline-block; }
-        fieldset { margin-top: 20px; padding: 15px; border: 1px solid #ddd; }
-        legend { font-weight: bold; color: #4CAF50; }
+        table { width: 100%; border-collapse: collapse; background-color: white; }
+        th, td { border: 1px solid #ddd; padding: 10px; text-align: left; }
+        th { background-color: #4CAF50; color: white; }
+        tr:nth-child(even) { background-color: #f2f2f2; }
+        .btn { padding: 8px 16px; margin: 2px; border: none; cursor: pointer; text-decoration: none; display: inline-block; }
+        .btn-edit { background-color: #2196F3; color: white; }
+        .btn-delete { background-color: #f44336; color: white; }
+        .btn-create { background-color: #4CAF50; color: white; margin-bottom: 20px; }
+        .filter-form { margin-bottom: 20px; padding: 15px; background-color: white; border-radius: 5px; }
+        .filter-form select, .filter-form button { padding: 10px; margin-right: 10px; }
+        .success { background-color: #dff0d8; color: #3c763d; padding: 10px; margin-bottom: 20px; border-radius: 5px; }
+        .subdocument { font-size: 12px; color: #666; }
     </style>
 </head>
 <body>
-    <h1>🎮 Añadir Nuevo Videojuego</h1>
+    <h1>🎮 Gestión de Videojuegos</h1>
     
-    <form action="{{ route('videojuegos.store') }}" method="POST">
-        @csrf
-        
-        <label for="titulo">Título:</label>
-        <input type="text" name="titulo" id="titulo" required>
-        
-        <label for="genero">Género:</label>
-        <select name="genero" id="genero" required>
-            <option value="Acción">Acción</option>
-            <option value="Aventura">Aventura</option>
-            <option value="RPG">RPG</option>
-            <option value="Shooter">Shooter</option>
-            <option value="Deportes">Deportes</option>
-            <option value="Carreras">Carreras</option>
-            <option value="Estrategia">Estrategia</option>
-            <option value="Puzzle">Puzzle</option>
-            <option value="Terror">Terror</option>
-            <option value="Plataformas">Plataformas</option>
-        </select>
-        
-        <label for="precio">Precio (€):</label>
-        <input type="number" name="precio" id="precio" step="0.01" required>
-        
-        <label for="fecha_lanzamiento">Fecha de Lanzamiento:</label>
-        <input type="date" name="fecha_lanzamiento" id="fecha_lanzamiento" required>
-        
-        <label for="puntuacion">Puntuación (1-10):</label>
-        <input type="number" name="puntuacion" id="puntuacion" min="1" max="10" step="0.1" required>
-        
-        <label for="ventas_millones">Ventas (millones):</label>
-        <input type="number" name="ventas_millones" id="ventas_millones" step="0.1" required>
-        
-        <label>
-            <input type="checkbox" name="multijugador"> Multijugador
-        </label>
-        
-        <fieldset>
-            <legend>Detalles (Subdocumento)</legend>
-            
-            <label for="desarrollador">Desarrollador:</label>
-            <input type="text" name="desarrollador" id="desarrollador" required>
-            
-            <label for="plataforma">Plataforma:</label>
-            <select name="plataforma" id="plataforma" required>
-                <option value="PC">PC</option>
-                <option value="PlayStation 5">PlayStation 5</option>
-                <option value="Xbox Series X">Xbox Series X</option>
-                <option value="Nintendo Switch">Nintendo Switch</option>
-                <option value="Multiplataforma">Multiplataforma</option>
+    @if(session('success'))
+        <div class="success">{{ session('success') }}</div>
+    @endif
+    
+    <a href="{{ route('videojuegos.create') }}" class="btn btn-create">+ Añadir Videojuego</a>
+    
+    <div class="filter-form">
+        <form method="GET" action="{{ route('videojuegos.index') }}">
+            <label for="genero">Filtrar por género:</label>
+            <select name="genero" id="genero">
+                <option value="">Todos</option>
+                @foreach($generos as $genero)
+                    <option value="{{ $genero }}" {{ request('genero') == $genero ? 'selected' : '' }}>
+                        {{ $genero }}
+                    </option>
+                @endforeach
             </select>
-            
-            <label for="clasificacion_edad">Clasificación de Edad:</label>
-            <select name="clasificacion_edad" id="clasificacion_edad" required>
-                <option value="PEGI 3">PEGI 3</option>
-                <option value="PEGI 7">PEGI 7</option>
-                <option value="PEGI 12">PEGI 12</option>
-                <option value="PEGI 16">PEGI 16</option>
-                <option value="PEGI 18">PEGI 18</option>
-            </select>
-        </fieldset>
-        
-        <button type="submit" class="btn btn-save">Guardar</button>
-        <a href="{{ route('videojuegos.index') }}" class="btn btn-cancel">Cancelar</a>
-    </form>
+            <button type="submit" class="btn btn-edit">Filtrar</button>
+        </form>
+    </div>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>Título</th>
+                <th>Género</th>
+                <th>Precio</th>
+                <th>Fecha</th>
+                <th>Puntuación</th>
+                <th>Multijugador</th>
+                <th>Ventas (M)</th>
+                <th>Detalles</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach($videojuegos as $videojuego)
+                <tr>
+                    <td>{{ $videojuego->titulo }}</td>
+                    <td>{{ $videojuego->genero }}</td>
+                    <td>{{ $videojuego->precio }}€</td>
+                    <td>{{ $videojuego->fecha_lanzamiento }}</td>
+                    <td>{{ $videojuego->puntuacion }}/10</td>
+                    <td>{{ $videojuego->multijugador ? 'Sí' : 'No' }}</td>
+                    <td>{{ $videojuego->ventas_millones }}</td>
+                    <td class="subdocument">
+                        {{ $videojuego->detalles['desarrollador'] ?? 'N/A' }}<br>
+                        {{ $videojuego->detalles['plataforma'] ?? 'N/A' }}<br>
+                        {{ $videojuego->detalles['clasificacion_edad'] ?? 'N/A' }}
+                    </td>
+                    <td>
+                        <a href="{{ route('videojuegos.edit', $videojuego->_id) }}" class="btn btn-edit">Editar</a>
+                        <form action="{{ route('videojuegos.destroy', $videojuego->_id) }}" method="POST" style="display:inline;">
+                            @csrf
+                            @method('DELETE')
+                            <button type="submit" class="btn btn-delete" onclick="return confirm('¿Seguro que quieres eliminar este videojuego?')">Eliminar</button>
+                        </form>
+                    </td>
+                </tr>
+            @endforeach
+        </tbody>
+    </table>
 </body>
 </html>
