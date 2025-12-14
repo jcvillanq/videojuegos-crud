@@ -7,7 +7,7 @@ use MongoDB\Laravel\Eloquent\Model;
 class Videojuego extends Model
 {
     protected $connection = 'mongodb';
-    protected $collection = 'videojuegos';
+    protected $table = 'db.videojuegos';
     
     protected $fillable = [
         'titulo',
