@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Usuario;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Hash;
+use App\Events\FailedLoginEvent;
 
 class LoginController extends Controller
 {
@@ -15,7 +15,7 @@ class LoginController extends Controller
     
     public function process(Request $request)
     {
-        $usuario = Usuario::where('usuario', $request->usuario)->first();
+       $usuario = Usuario::where('usuario', $request->usuario)->first();
         
         // Verificar si el usuario existe
         if (!$usuario) {
@@ -24,7 +24,7 @@ class LoginController extends Controller
         
         // Verificar si el usuario está activo
         if (!$usuario->activo) {
-            return redirect()->back()->with('error', 'Usuario bloqueado por demasiados intentos fallidos');
+            return redirect()->back()->with('error', 'Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador.');
         }
         
         // Verificar la contraseña
@@ -35,8 +35,18 @@ class LoginController extends Controller
             
             return redirect()->route('videojuegos.index')->with('success', 'Bienvenido ' . $usuario->nombre);
         } else {
-            // Password incorrecto
-            return redirect()->back()->with('error', 'Contraseña incorrecta');
+            // Password incorrecto - disparar evento
+            FailedLoginEvent::dispatch($usuario);
+            
+            // Recargar usuario para ver si fue bloqueado
+            $usuario->refresh();
+            
+            if (!$usuario->activo) {
+                return redirect()->back()->with('error', 'Usuario bloqueado por demasiados intentos fallidos. Contacte al administrador.');
+            }
+            
+            $intentosRestantes = 3 - $usuario->intentos_fallidos;
+            return redirect()->back()->with('error', "Contraseña incorrecta. Te quedan {$intentosRestantes} intentos.");
         }
     }
 }

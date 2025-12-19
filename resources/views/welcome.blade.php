@@ -114,9 +114,6 @@
             <button type="submit" class="btn-login">Iniciar Sesión</button>
         </form>
         
-        <div class="link-crud">
-            <a href="{{ route('videojuegos.index') }}">Ir al CRUD de Videojuegos</a>
-        </div>
     </div>
 </body>
 </html>
